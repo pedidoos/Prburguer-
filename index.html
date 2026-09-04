@@ -1121,7 +1121,7 @@
                 <span class="close-modal" onclick="toggleAdminModal(false)">Fechar</span>
             </div>
             <div id="adminAuthView">
-                <p class="details-desc" id="adminAuthSubtitle">Insira suas credenciais de acesso ou cadastre sua senha administrativa no primeiro acesso:</p>
+                <p class="details-desc" id="adminAuthSubtitle">Insira suas credenciais de acesso administrativo:</p>
                 <div class="form-group">
                     <label>E-mail do Administrador:</label>
                     <input type="email" id="adminEmail" placeholder="admin@prburguer.com">
@@ -1130,9 +1130,8 @@
                     <label>Senha:</label>
                     <input type="password" id="adminPassword" placeholder="Sua senha segura">
                 </div>
-                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <div style="margin-top: 20px;">
                     <button class="btn-checkout" style="margin-top:0;" onclick="adminLogin()">Entrar</button>
-                    <button class="btn-checkout" style="margin-top:0; background-color: #333; color: #fff;" onclick="adminRegister()">Criar Conta (1º Acesso)</button>
                 </div>
             </div>
 
@@ -1840,19 +1839,6 @@
 
         function toggleAdminModal(show) {
             document.getElementById('adminModal').style.display = show ? 'flex' : 'none';
-        }
-
-        function adminRegister() {
-            const email = document.getElementById('adminEmail').value.trim();
-            const password = document.getElementById('adminPassword').value.trim();
-            if(!email || !password) { alert('Preencha e-mail e senha.'); return; }
-
-            auth.createUserWithEmailAndPassword(email, password)
-                .then(() => {
-                    alert('Conta de administrador criada com sucesso!');
-                    openAdminPortal();
-                })
-                .catch(error => { alert('Erro ao cadastrar: ' + error.message); });
         }
 
         function adminLogin() {
