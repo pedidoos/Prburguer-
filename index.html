@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PR Burguer na Brasa - Cardápio Digital</title>
+    <!-- Firebase SDKs (Compat v10) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
     <style>
         * {
             box-sizing: border-box;
@@ -17,6 +21,21 @@
             background-color: #0b0b0b;
             color: #e0e0e0;
             padding-bottom: 140px;
+        }
+
+        /* Selo em Tempo Real "Mais Pedido" nos Produtos */
+        .badge-best-seller {
+            background-color: #c5a85c;
+            color: #000;
+            font-size: 0.7rem;
+            font-weight: 800;
+            padding: 3px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(197, 168, 92, 0.4);
         }
 
         /* Container do Letreiro no Topo */
@@ -34,7 +53,6 @@
             font-size: 0.9rem;
         }
 
-        /* Efeito de movimento contínuo e suave */
         .promo-ticker-wrapper {
             display: inline-block;
             padding-left: 100%;
@@ -51,7 +69,6 @@
             100% { transform: translate3d(-100%, 0, 0); }
         }
 
-        /* iFood Header Style */
         .merchant-cover {
             height: 140px;
             background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.7)), url('https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjFMPZdTHRzkRixX-NAJzjmrUrkrxaoVfgWDfD17VF6-gQ3i83-lSgFMcAkNLCng1geD0qdK59AaeMvLJtDRdeSqPGLKxWfyPGtq67onY95aOnUGoedQKehiremi_o7LD8MFtMNI24Rxf4Ij84Edn1cDh4c63VRdraYuAn03n5sFVNw6Jp-YxKXCOleV-A/s1600/37172.png') no-repeat center center;
@@ -143,7 +160,6 @@
             border-radius: 50%;
         }
 
-        /* iFood Categories Bar */
         .categories-nav {
             background-color: #121212;
             position: sticky;
@@ -179,7 +195,6 @@
             border-color: #c5a85c;
         }
 
-        /* Container & Grid */
         .container {
             max-width: 800px;
             margin: 0 auto;
@@ -204,7 +219,6 @@
             gap: 12px;
         }
 
-        /* iFood Product Card Style */
         .product-card {
             background-color: #121212;
             border-radius: 8px;
@@ -270,7 +284,6 @@
             color: #c5a85c;
         }
 
-        /* Imagem do Produto no Card */
         .product-image-right {
             width: 90px;
             height: 90px;
@@ -294,7 +307,6 @@
             filter: grayscale(1) opacity(0.3);
         }
 
-        /* Rodapé de Direitos Autorais */
         .main-footer {
             text-align: center;
             padding: 24px 16px;
@@ -302,6 +314,7 @@
             font-size: 0.8rem;
             color: #666666;
             border-top: 1px solid #1a1a1a;
+            position: relative;
         }
 
         .main-footer a {
@@ -310,7 +323,21 @@
             font-weight: 500;
         }
 
-        /* iFood Floating Cart Bar */
+        .admin-gear-btn {
+            position: absolute;
+            right: 16px;
+            bottom: 20px;
+            background: none;
+            border: none;
+            color: #ffffff;
+            opacity: 0.15;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: opacity 0.2s;
+            padding: 5px;
+        }
+        .admin-gear-btn:hover { opacity: 0.9; }
+
         .cart-float {
             position: fixed;
             bottom: 0;
@@ -353,7 +380,6 @@
         
         .btn-view-cart:hover { background-color: #e2c478; }
 
-        /* Modal View Like iFood */
         .modal {
             display: none;
             position: fixed;
@@ -406,10 +432,9 @@
 
         .close-modal {
             color: #c5a85c;
-            font-size: 1.5rem;
+            font-size: 1rem;
             font-weight: bold;
             cursor: pointer;
-            font-size: 1rem;
         }
 
         .modal-banner-image {
@@ -435,7 +460,6 @@
             margin-bottom: 20px;
         }
 
-        /* Seção interna de Adicionais nos Lanches */
         .addons-section-title {
             font-size: 0.95rem;
             font-weight: bold;
@@ -660,11 +684,58 @@
             display: inline-block;
             margin-top: 5px;
         }
+
+        .admin-stat-card {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        .admin-stat-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #c5a85c;
+            margin-top: 5px;
+        }
+        .client-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            background-color: #1a1a1a;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            border: 1px solid #262626;
+        }
+        .whatsapp-btn-admin {
+            background-color: #25D366;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 4px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .ranking-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 12px;
+            background-color: #1a1a1a;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            border: 1px solid #262626;
+            font-size: 0.9rem;
+        }
     </style>
 </head>
 <body>
 
-    <!-- Letreiro Flutuante com Avisos de Promoção no Topo -->
     <div class="promo-ticker-container">
         <div class="promo-ticker-wrapper">
             <span class="promo-ticker-item">🎁 COMBO CASAL COM R$ 20,00 DE DESCONTO COMPLETO! Monte o seu na aba Combos! ❤️</span>
@@ -698,13 +769,13 @@
 
     <div class="container">
         
-        <!-- SEÇÃO: HAMBÚRGUERES -->
         <section id="hamburgueres" class="category-section">
             <h3 class="category-title">Hambúrgueres</h3>
             <div class="menu-grid">
                 
                 <div class="product-card" onclick="openProductDetails('PR Brutal', 'Pão, maionese grill pr, alface, cebola roxa, 3 carne 160g com cheddar, muito bacon crocante em fatias, barbecue defumado e cebola caramelizada', 56.90, 'Hambúrgueres', 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiYKowKtIA2isavjNo8pvPVAt2WWizC21qxCEgHZrzt4TrNDx-bwoBm4X328idQyO1s4q0YU7zEkx93k3xo8jpfGhqajd5JJDy7RxyGg4JxmSy7TDBbODieIAMNPPgE2qRlEBYN2H6Ag1UDjxj6gMGtQbc3qf3GBYEFBOWSAHTKWHXlkbo1_LOgDNiYNEA/s1600/282518.jpg')">
                     <div class="product-info-left">
+                        <div id="badge-PR Brutal"></div>
                         <div class="product-name">PR Brutal</div>
                         <div class="product-desc">Pão, maionese grill pr, alface, cebola roxa, 3 carne 160g com cheddar, muito bacon crocante em fatias, barbecue defumado e cebola caramelizada</div>
                         <div class="product-price">R$ 56,90</div>
@@ -716,6 +787,7 @@
 
                 <div class="product-card" onclick="openProductDetails('PR Bacon', 'Pão de brioche, molho especial PR, gourmet de 160g, Queijo cheddar, bacon crocante, alface, tomate, maionese Grill PR, barbecue defumado.', 35.90, 'Hambúrgueres', 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEilvIzgTVbGQOgW2xBsfXs2tLdhMCPofW9VBp_TkyiTJ0gJM7ONdUP0oC5WR0sjlbJZBf2S082MK14aAmig2krc1lCpK3rht8AGoQbh5Hq-EPLZPoWPj2u79cG13uHI6XWcSracKlU2tnMuQ1UYns5hcJ2Qh95XHJsjQxeECcJpcCdOx2wXJXHhQ5am9ak/s1600/282509.jpg')">
                     <div class="product-info-left">
+                        <div id="badge-PR Bacon"></div>
                         <div class="product-name">PR Bacon</div>
                         <div class="product-desc">Pão de brioche, molho especial PR, gourmet de 160g, Queijo cheddar, bacon crocante, alface, tomate, maionese Grill PR, barbecue defumado.</div>
                         <div class="product-price">R$ 35,90</div>
@@ -739,6 +811,7 @@
 
                 <div class="product-card" onclick="openProductDetails('PR na Brasa', 'Pão de brioche, molho especial PR, 2 gourmet 160g, queijo cheddar em dobro, bacon crocante em dobro, alface, tomate, cebola caramelizada, maionese Grill PR.', 46.90, 'Hambúrgueres', 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgRIsZN1h1XijQlsNc6h6pIOHqPXFdBor_vpTFf4EYOQIgEb9ycUAcqvU_-IW5z-Cj9t0LR6JIkXgtnP6IYfkSx8tA8aSD_Y6hfmw1iukURFm0SbrOfJwD4uYHdNXqQ9NZ_Su6HhDQA4ykOR8uBzECuLuxiR9_axjk_8PsJNLKBA7iDJCEjFbdipVR76Vs/s1600/282524.jpg')">
                     <div class="product-info-left">
+                        <div id="badge-PR na Brasa"></div>
                         <div class="product-name">PR na Brasa</div>
                         <div class="product-desc">Pão de brioche, molho especial PR, 2 gourmet 160g, queijo cheddar em dobro, bacon crocante em dobro, alface, tomate, cebola caramelizada, maionese Grill PR.</div>
                         <div class="product-price">R$ 46,90</div>
@@ -750,6 +823,7 @@
 
                 <div class="product-card" onclick="openProductDetails('PR Salada', 'Pão de brioche, molho especial PR, alface, tomate, gourmet 160g, baconese PR.', 29.90, 'Hambúrgueres', 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhcphrPNnpLwcBfNLLjvkgByI3Loa2uQHMhJbE6xVqv61SC8KjMzVcVwWG93axNrlriApm3_qWlvE0sdObI7S_dRVScZuW3bHbnmpDkFoPTKHhnMYUTMORfagTAm8C-lNMJGlgRLFkzgRUuhCx51dFRQh59l2g2hvWm3aSU-dTV46vgXw8CRFLsmjQAnRg/s1600/282506.jpg')">
                     <div class="product-info-left">
+                        <div id="badge-PR Salada"></div>
                         <div class="product-name">PR Salada</div>
                         <div class="product-desc">Pão de brioche, molho especial PR, alface, tomate, gourmet 160g, baconese PR.</div>
                         <div class="product-price">R$ 29,90</div>
@@ -761,6 +835,7 @@
 
                 <div class="product-card" onclick="openProductDetails('PR Especial da Casa', 'Pão de brioche, maionese Grill PR, gourmet 160g, cebola caramelizada, catupiry original, barbecue defumado.', 36.90, 'Hambúrgueres', 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgo-K3kl7rDwBGjEdplFPTVAMDOTlQNadN-bm5F3XVMlkBoMSfWznwzqDNr4WD9iOweEE810RS4yV6G1dHq5WWwkC7KFa75rCvN7NcIbygSiMiHfdYNB3kO4Ix6Z98CO0V28SRFwmpKbXbGCR_r-ZzelNp3bCI9zZPdVY2q5-cS-dW-HkXTIXPMOeGZadI/s1600/282521.jpg')">
                     <div class="product-info-left">
+                        <div id="badge-PR Especial da Casa"></div>
                         <div class="product-name">PR Especial da Casa</div>
                         <div class="product-desc">Pão de brioche, maionese Grill PR, gourmet 160g, cebola caramelizada, catupiry original, barbecue defumado.</div>
                         <div class="product-price">R$ 36,90</div>
@@ -772,6 +847,7 @@
 
                 <div class="product-card" onclick="openProductDetails('X-PR Fit Vegan', 'Pão brioche, molho especial PR, alface, tomate, omelete temperado, maionese Grill.', 30.90, 'Hambúrgueres', 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgaq7wjPfMCMFSv3xxx_g0F2n2bQ76bNoeJ5Pl2cDbX-8hAqc8b9ydHs4lF3m6sNzCN0hhFL7_misgoMfodTPWQiEoAJTisVKXorU85fhNvX0tb-5Y_fE5_zOD-S1R1lZACBuMNg6MJr-F_gQtRfnA-Wn2v2KW7Y2i-kBIsU8W-a8mTjy_oHMA299kCmF4/s1600/35701.jpg')">
                     <div class="product-info-left">
+                        <div id="badge-X-PR Fit Vegan"></div>
                         <div class="product-name">X-PR Fit Vegan</div>
                         <div class="product-desc">Pão brioche, molho especial PR, alface, tomate, omelete temperado, maionese Grill.</div>
                         <div class="product-price">R$ 30,90</div>
@@ -783,6 +859,7 @@
 
                 <div class="product-card" onclick="openProductDetails('PR Coalho', 'Pão brioche, Alface americana, Burguer artesanal de 160g, 2 fatias de queijo cheddar, Geleia de pimenta, 1 fatia generosa de queijo coalho grelhado, Bacon em fatias.', 40.90, 'Hambúrgueres', 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg7ebSowtGsXbsNG1ecX-9SpCPvLUJJ3LB5Kj75LxxspRfmBZhK_EMFdHjuQykuQ0911jK9w67Yh8KOUnNSCyUlhtkkFvEIMAQS6MriAqVD7QB8bfWv3sIcdxoArJb_MNQV3huEqZ7I5nohxg18kKnhyuEtsWCJw1HxsWNjADkMex8q29A3FjHWpTWUqRs/s1600/282503.jpg')">
                     <div class="product-info-left">
+                        <div id="badge-PR Coalho"></div>
                         <div class="product-name">PR Coalho</div>
                         <div class="product-desc">Pão brioche, Alface americana, Burguer artesanal de 160g, 2 fatias de queijo cheddar, Geleia de pimenta, 1 fatia generosa de queijo coalho grelhado, Bacon em fatias.</div>
                         <div class="product-price">R$ 40,90</div>
@@ -794,6 +871,7 @@
 
                 <div class="product-card" onclick="openProductDetails('PR Burguer', 'Pão brioche, queijo, carne 160g e molho. Tradicional e saboroso feito na brasa pura.', 27.90, 'Hambúrgueres', 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEghk-UY-JctBdOvwdGna5hjRx5kMwZp3zOHDLtCo7DIciVaCEwC2N-KLwCua_OCkJRgDcSTONJk5mCbZ_vi9cgdk8cZpLkK6rzIGgiAApxRewaAtUFbjsDCGzjcRufmvD6egYmywsF-ha563eJHvn2gdyGvehKghz23twUORCvSpYdiQmgSaqMVOxutw1k/s1600/282512.jpg')">
                     <div class="product-info-left">
+                        <div id="badge-PR Burguer"></div>
                         <div class="product-name">PR Burguer</div>
                         <div class="product-desc">Pão brioche, queijo, carne 160g e molho. Tradicional e saboroso feito na brasa pura.</div>
                         <div class="product-price">R$ 27,90</div>
@@ -805,6 +883,7 @@
 
                 <div class="product-card" onclick="openProductDetails('Lanche da Copa', 'Edição especial e limitada! Hambúrguer artesanal robusto com acompanhamentos selecionados.', 41.90, 'Hambúrgueres', 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEitKh3X1z-mNxJDLPyywg7FtMMrrfwAIHQcf3PWNjaCiWDLsjls0lZRGsomWYYnnQ4Uoa7e1ZSA56oxTxn0Q3c-plrelHxtC_Aw367la8K_QyY4RIvLOZRann97MrKgPmKthH188_iHnP85eVrdf2o-u4RXBYioMEgj6aWi7rzSXeAKLVJxLAqJ_Btufog/s1600/282527.jpg')">
                     <div class="product-info-left">
+                        <div id="badge-Lanche da Copa"></div>
                         <div class="product-name">Lanche da Copa</div>
                         <div class="product-desc">Edição especial e limitada! Hambúrguer artesanal robusto com acompanhamentos selecionados.</div>
                         <div class="product-price">R$ 41,90</div>
@@ -817,7 +896,6 @@
             </div>
         </section>
 
-        <!-- SEÇÃO: COMBOS -->
         <section id="combos" class="category-section">
             <h3 class="category-title">Combos</h3>
             <div class="menu-grid">
@@ -845,7 +923,7 @@
                     </div>
                 </div>
 
-                <div class="product-card" onclick="openProductDetails('Combo Batata + Refrigerante', 'Batata frita individual + Refrigerante em lata. Acompanha molho ranch (Grande).', 12.00, 'Combos', 'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgfcMnAqmByRA3KwFmSERwmM0bGLkZ0iguy6tWGM6XRPLJbxe3MheuwgAhqVLJqkIsQmLOTzjtfitjdY4vq-FZmzmhp2CKsOM8hwyQU-LG-SwVl6fshoTFUdLby8eKdK4hhlpGzaH5FE8QUuwDuU2oXgYKyBdpJSGxLypxFYzl6rsKOWVp45ohXFlMvM0o/s1600/37146.jpg')">
+                <div class="product-card" onclick="openProductDetails('Combo Batata + Refrigerante', 'Batata frita individual + Refrigerante em lata. Acompanha molho ranch (Grande).', 12.00, 'Combos', '')">
                     <div class="product-info-left">
                         <div class="product-name">Combo Batata + Refrigerante</div>
                         <div class="product-desc">Batata frita individual + Refrigerante em lata. Acompanha molho ranch (Grande).</div>
@@ -870,7 +948,6 @@
             </div>
         </section>
 
-        <!-- SEÇÃO: ADICIONAIS -->
         <section id="adicionais" class="category-section">
             <h3 class="category-title">Adicionais</h3>
             <div class="menu-grid">
@@ -951,7 +1028,6 @@
             </div>
         </section>
 
-        <!-- SEÇÃO: REFRI -->
         <section id="refri" class="category-section">
             <h3 class="category-title">Refri</h3>
             <div class="menu-grid">
@@ -971,11 +1047,12 @@
         <footer class="main-footer">
             <p>&copy; 2026 PR Burguer na Brasa. Todos os direitos reservados.</p>
             <p style="margin-top: 4px;">Desenvolvido por <a href="https://instagram.com/maxaraujo_63" target="_blank">maxaraujo_63</a></p>
+            <button class="admin-gear-btn" onclick="openAdminPortal()" title="Painel do Administrador">⚙️</button>
         </footer>
 
     </div>
 
-    <!-- MODAL: Detalhes Completos do Produto -->
+    <!-- MODAL: Detalhes do Produto -->
     <div class="modal" id="productDetailsModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -983,21 +1060,17 @@
                 <span class="close-modal" onclick="toggleDetailsModal(false)">Fechar</span>
             </div>
             <img src="" alt="Imagem do Produto" class="modal-banner-image" id="detailsImage">
-            
             <p class="details-desc" id="detailsDescription">Descrição completa aqui...</p>
-            
-            <!-- Interface de Adicionais Injetada para Categoria Lanches -->
             <div id="modalAddonsContainer" style="display: none; margin-bottom: 20px;">
                 <div class="addons-section-title">➕ Deseja Turbinar seu Lanche? (Adicionais)</div>
                 <div id="modalAddonsList"></div>
             </div>
-
             <div class="details-price" id="detailsPrice">R$ 0,00</div>
             <button class="btn-checkout" id="detailsAddBtn">Adicionar à sacola</button>
         </div>
     </div>
 
-    <!-- MODAL: Customização do Combo Casal -->
+    <!-- MODAL: Combo Casal -->
     <div class="modal" id="comboCasalModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1005,9 +1078,7 @@
                 <span class="close-modal" onclick="toggleComboCasalModal(false)">Fechar</span>
             </div>
             <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjdgzl1E0zWjFGTGEaFzjgwiSVr1Rxr-YGPxuTSJ8MaM-UJRkH-hSZUBWA6UWBN5kz36vqS5w1G0ewzH2_d1Yr1JH2pGT7HPc1TpImFTK-hUODPItW-pyrFX3jrSjvJ6QfvO6lktiO1Er5O2jfA7lymTg147WiFvNI2NQklE-yW_Ckt86mG1tvKU_3sLwM/s1600/110117.jpg" alt="Combo Casal" class="modal-banner-image">
-            
             <p class="details-desc" style="margin-bottom:10px;">Preencha os itens abaixo para montar o seu combo. <strong>Ao escolher 2 Hambúrgueres + 2 Batatas + 2 Refrigerantes, você ganha R$ 20,00 de desconto automático!</strong></p>
-            
             <div class="combo-options-title">🍔 Escolha seus Hambúrgueres</div>
             <div class="combo-grid">
                 <div class="form-group" style="margin-top:0;">
@@ -1019,7 +1090,6 @@
                     <select id="comboBurger2" onchange="calculateComboPrice()"></select>
                 </div>
             </div>
-
             <div class="combo-options-title">🍟 Quantidade de Batata Individual (R$ 9,00 un.)</div>
             <div class="form-group" style="margin-top:0;">
                 <select id="comboPotatoQty" onchange="calculateComboPrice()">
@@ -1027,7 +1097,6 @@
                     <option value="2" selected>2 Batatas fritas individuais</option>
                 </select>
             </div>
-
             <div class="combo-options-title">🥤 Quantidade de Refrigerante lata (R$ 6,00 un.)</div>
             <div class="form-group" style="margin-top:0;">
                 <select id="comboSodaQty" onchange="calculateComboPrice()">
@@ -1035,15 +1104,73 @@
                     <option value="2" selected>2 Refrigerantes em Lata</option>
                 </select>
             </div>
-
-            <!-- Exibição de Valores (Sem Desconto e Com Desconto) na Tela de Montagem -->
             <div style="margin-top: 15px; padding: 12px; background-color: #1a1a1a; border-radius: 6px; border: 1px solid #333;">
                 <div id="comboOriginalPriceDisplay" style="font-size: 0.95rem; color: #aaaaaa; text-decoration: line-through; display: none;">R$ 0,00</div>
                 <div class="details-price" id="comboModalPrice" style="margin-bottom: 0;">R$ 0,00</div>
                 <div id="comboDiscountNotice" style="color: #2ec4b6; font-size: 0.85rem; font-weight: bold; margin-top: 4px; display: none;">Economia de R$ 20,00 🌿</div>
             </div>
-
             <button class="btn-checkout" onclick="addComboToCart()">Confirmar Combo e Adicionar</button>
+        </div>
+    </div>
+
+    <!-- MODAL: Administrador (Métricas, Ranqueamento e CRM) -->
+    <div class="modal" id="adminModal">
+        <div class="modal-content" style="max-width: 650px;">
+            <div class="modal-header">
+                <h3 class="modal-title" id="adminModalTitle">Painel do Administrador</h3>
+                <span class="close-modal" onclick="toggleAdminModal(false)">Fechar</span>
+            </div>
+            <div id="adminAuthView">
+                <p class="details-desc" id="adminAuthSubtitle">Insira suas credenciais de acesso ou cadastre sua senha administrativa no primeiro acesso:</p>
+                <div class="form-group">
+                    <label>E-mail do Administrador:</label>
+                    <input type="email" id="adminEmail" placeholder="admin@prburguer.com">
+                </div>
+                <div class="form-group">
+                    <label>Senha:</label>
+                    <input type="password" id="adminPassword" placeholder="Sua senha segura">
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn-checkout" style="margin-top:0;" onclick="adminLogin()">Entrar</button>
+                    <button class="btn-checkout" style="margin-top:0; background-color: #333; color: #fff;" onclick="adminRegister()">Criar Conta (1º Acesso)</button>
+                </div>
+            </div>
+
+            <div id="adminDashboardView" style="display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                    <h4 style="color: #c5a85c; font-size: 1.1rem;">📊 Métricas de Vendas em Tempo Real</h4>
+                    <button onclick="adminLogout()" style="background:none; border:1px solid #c5a85c; color:#c5a85c; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:0.8rem;">Sair</button>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;">
+                    <div class="admin-stat-card">
+                        <div style="font-size: 0.8rem; color: #aaa;">Hoje</div>
+                        <div class="admin-stat-value" id="statDay">R$ 0,00</div>
+                    </div>
+                    <div class="admin-stat-card">
+                        <div style="font-size: 0.8rem; color: #aaa;">Este Mês</div>
+                        <div class="admin-stat-value" id="statMonth">R$ 0,00</div>
+                    </div>
+                    <div class="admin-stat-card">
+                        <div style="font-size: 0.8rem; color: #aaa;">Este Ano</div>
+                        <div class="admin-stat-value" id="statYear">R$ 0,00</div>
+                    </div>
+                </div>
+
+                <div class="addons-section-title">🏆 Ranqueamento de Hambúrgueres (Top 1 ao Último)</div>
+                <div id="adminRankingList" style="max-height: 180px; overflow-y: auto; margin-bottom: 20px;">
+                    <p style="color: #777; font-size: 0.85rem; text-align: center; padding: 10px;">Nenhuma venda registrada ainda.</p>
+                </div>
+
+                <div class="addons-section-title">👥 Base de Clientes (CRM WhatsApp)</div>
+                <div id="adminClientsList" style="max-height: 160px; overflow-y: auto; margin-bottom: 20px;">
+                    <p style="color: #777; font-size: 0.85rem; text-align: center; padding: 10px;">Nenhum pedido registrado ainda.</p>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 10px;">
+                    <button onclick="clearHistory('day')" style="background-color: #333; color: #fff; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Limpar Histórico Diário</button>
+                    <button onclick="clearHistory('all')" style="background-color: #a00; color: #fff; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Limpar Histórico Completo</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1056,7 +1183,7 @@
         <button class="btn-view-cart" onclick="toggleModal(true)">Ver sacola</button>
     </div>
 
-    <!-- Modal da Sacola de Compras -->
+    <!-- Modal da Sacola -->
     <div class="modal" id="cartModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -1069,6 +1196,11 @@
             <div class="form-group">
                 <label for="clientName">Seu Nome Completo:</label>
                 <input type="text" id="clientName" placeholder="Ex: João Silva">
+            </div>
+
+            <div class="form-group">
+                <label for="clientPhone">Seu WhatsApp / Telefone (com DDD):</label>
+                <input type="text" id="clientPhone" placeholder="Ex: 19999999999">
             </div>
 
             <div class="form-group">
@@ -1118,7 +1250,21 @@
     </div>
 
     <script>
-        // Banco estruturado de Hambúrgueres do Menu atualizado com os novos nomes
+        const firebaseConfig = {
+          apiKey: "AIzaSyCczhst9EVg27JpvBMq9C-Z0n9efQpI5rQ",
+          authDomain: "studio-bella-rosa.firebaseapp.com",
+          databaseURL: "https://studio-bella-rosa-default-rtdb.firebaseio.com",
+          projectId: "studio-bella-rosa",
+          storageBucket: "studio-bella-rosa.firebasestorage.app",
+          messagingSenderId: "235281594938",
+          appId: "1:235281594938:web:bb215b9aaa694e219d5303",
+          measurementId: "G-TCNBC5S04S"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
+
         const availableBurgers = [
             { name: "PR Brutal", price: 56.90 },
             { name: "PR Bacon", price: 35.90 },
@@ -1131,7 +1277,6 @@
             { name: "Lanche da Copa", price: 41.90 }
         ];
 
-        // Definição global de Adicionais cadastrados
         const availableAddons = [
             { id: "addon_barbecue", name: "Barbecue Defumado", price: 4.00 },
             { id: "addon_cebola", name: "Cebola Caramelizada", price: 4.00 },
@@ -1147,27 +1292,122 @@
         let selectedPaymentMethod = '';
         const deliveryFee = 6.00;
         let currentProductOpening = null; 
-
         const isFriday = new Date().getDay() === 5;
 
         window.addEventListener('DOMContentLoaded', () => {
             if (isFriday) {
                 document.getElementById('tickerFridayPromo').style.display = 'inline-block';
             }
+            initRealtimeSync();
         });
+
+        function initRealtimeSync() {
+            db.ref('orders').on('value', (snapshot) => {
+                const data = snapshot.val();
+                let productCounts = {};
+                let totalDay = 0;
+                let totalMonth = 0;
+                let totalYear = 0;
+                let clientsMap = {};
+
+                availableBurgers.forEach(b => { productCounts[b.name] = 0; });
+
+                const now = new Date();
+                const todayStr = now.toISOString().split('T')[0];
+                const currentMonth = now.getMonth();
+                const currentYear = now.getFullYear();
+
+                if (data) {
+                    Object.values(data).forEach(order => {
+                        const orderDate = new Date(order.timestamp);
+                        const orderDateStr = order.timestamp ? order.timestamp.split('T')[0] : '';
+                        const amount = order.total || 0;
+
+                        if (orderDateStr === todayStr) totalDay += amount;
+                        if (orderDate.getMonth() === currentMonth && orderDate.getFullYear() === currentYear) totalMonth += amount;
+                        if (orderDate.getFullYear() === currentYear) totalYear += amount;
+
+                        if (order.clientName && order.clientPhone) {
+                            clientsMap[order.clientPhone] = {
+                                name: order.clientName,
+                                phone: order.clientPhone,
+                                lastOrder: order.timestamp
+                            };
+                        }
+
+                        if (order.items) {
+                            order.items.forEach(item => {
+                                let burgerName = item.name;
+                                if (item.isLancheCustom) burgerName = item.lancheBase;
+                                if (productCounts.hasOwnProperty(burgerName)) {
+                                    productCounts[burgerName] += item.qty;
+                                }
+                            });
+                        }
+                    });
+                }
+
+                document.getElementById('statDay').innerText = 'R$ ' + totalDay.toFixed(2).replace('.', ',');
+                document.getElementById('statMonth').innerText = 'R$ ' + totalMonth.toFixed(2).replace('.', ',');
+                document.getElementById('statYear').innerText = 'R$ ' + totalYear.toFixed(2).replace('.', ',');
+
+                renderAdminClients(Object.values(clientsMap));
+
+                // Ordena o ranqueamento do maior para o menor vendido
+                let sortedRanking = Object.entries(productCounts).sort((a, b) => b[1] - a[1]);
+                renderAdminRanking(sortedRanking);
+
+                // Define o Top 1 mais vendido
+                let topBurger = sortedRanking.length > 0 && sortedRanking[0][1] > 0 ? sortedRanking[0][0] : null;
+
+                availableBurgers.forEach(b => {
+                    const badgeContainer = document.getElementById(`badge-${b.name}`);
+                    if (badgeContainer) {
+                        if (topBurger && b.name === topBurger) {
+                            badgeContainer.innerHTML = `<span class="badge-best-seller">⭐ Mais Pedido</span>`;
+                        } else {
+                            badgeContainer.innerHTML = '';
+                        }
+                    }
+                });
+            });
+        }
+
+        function renderAdminRanking(rankingArray) {
+            const container = document.getElementById('adminRankingList');
+            if (!rankingArray || rankingArray.length === 0) {
+                container.innerHTML = `<p style="color: #777; font-size: 0.85rem; text-align: center; padding: 10px;">Nenhuma venda registrada ainda.</p>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            rankingArray.forEach(([name, count], index) => {
+                let medal = `#${index + 1}`;
+                if (index === 0) medal = '🥇 1º';
+                else if (index === 1) medal = '🥈 2º';
+                else if (index === 2) medal = '🥉 3º';
+
+                container.innerHTML += `
+                    <div class="ranking-row">
+                        <div>
+                            <strong style="color: #c5a85c; margin-right: 8px;">${medal}</strong>
+                            <span style="color: #fff;">${name}</span>
+                        </div>
+                        <span style="background-color: #222; color: #c5a85c; padding: 2px 8px; border-radius: 4px; font-weight: bold; font-size: 0.85rem;">${count} vendidos</span>
+                    </div>
+                `;
+            });
+        }
 
         function setActiveTab(element) {
             document.querySelectorAll('.category-tab').forEach(tab => tab.classList.remove('active'));
             element.classList.add('active');
         }
 
-        // Abertura de detalhes com suporte a Adicionais dinâmicos para hambúrgueres
         function openProductDetails(name, desc, price, category, imageUrl) {
             currentProductOpening = { name, basePrice: price, category, imageUrl };
-            
             document.getElementById('detailsTitle').innerText = name;
             document.getElementById('detailsDescription').innerText = desc;
-            
             const modalImg = document.getElementById('detailsImage');
             modalImg.src = imageUrl;
             modalImg.alt = name;
@@ -1216,7 +1456,6 @@
         function updateProductModalPrice() {
             if (!currentProductOpening) return;
             let totalPrice = currentProductOpening.basePrice;
-
             if (currentProductOpening.category === 'Hambúrgueres') {
                 availableAddons.forEach(addon => {
                     const cb = document.getElementById(addon.id);
@@ -1225,7 +1464,6 @@
                     }
                 });
             }
-
             document.getElementById('detailsPrice').innerText = 'R$ ' + totalPrice.toFixed(2).replace('.', ',');
         }
 
@@ -1233,11 +1471,9 @@
             document.getElementById('productDetailsModal').style.display = show ? 'flex' : 'none';
         }
 
-        // Adiciona item na sacola calculando lanche + adicionais dinâmicos internos
         function addItemWithAddons(name, price, category, addonsList) {
             let itemPrice = price;
             let finalName = name;
-            
             if (addonsList.length > 0) {
                 const addonsNames = addonsList.map(a => a.name).join(', ');
                 finalName = `${name} [Com: ${addonsNames}]`;
@@ -1262,7 +1498,6 @@
             updateCart();
         }
 
-        // Função para adicionar itens genéricos e os adicionais clicados "por fora"
         function addItem(name, price, category) {
             const index = cart.findIndex(item => item.name === name);
             if (index > -1) {
@@ -1273,7 +1508,6 @@
             updateCart();
         }
 
-        // Funções estruturais do Combo Casal
         function openComboCasalDetails() {
             const b1Select = document.getElementById('comboBurger1');
             const b2Select = document.getElementById('comboBurger2');
@@ -1383,7 +1617,6 @@
             updateCart();
         }
 
-        // Atualização e renderização completa da sacola iFood Style
         function updateCart() {
             const container = document.getElementById('cartItemsContainer');
             container.innerHTML = '';
@@ -1408,11 +1641,8 @@
             
             categories.forEach(cat => {
                 const itemsInCat = cart.filter(item => item.category === cat);
-                
                 if (itemsInCat.length > 0) {
-                    let catHtml = `<div class="cart-category-group">
-                        <div class="cart-category-name">${cat}</div>`;
-                    
+                    let catHtml = `<div class="cart-category-group"><div class="cart-category-name">${cat}</div>`;
                     itemsInCat.forEach(item => {
                         subtotal += (item.price * item.qty);
                         count += item.qty;
@@ -1420,20 +1650,10 @@
                         let displayName = item.name;
                         if(item.isComboCasal) {
                             const secondBurgerText = item.details.burger2 === "Nenhum" ? "Dispensado" : item.details.burger2;
-                            displayName = `❤️ Combo Casal:<br>
-                            <span style="font-size:0.8rem; color:#aaa; font-weight:normal;">
-                            - 1º Lanche: ${item.details.burger1}<br>
-                            - 2º Lanche: ${secondBurgerText}<br>
-                            - ${item.details.potatoes} Batata(s) Individual(is)<br>
-                            - ${item.details.sodas} Refri(s) em Lata<br>
-                            ${item.details.discountApplied ? '<b style="color:#2ec4b6;">(Desconto R$ 20 aplicado!)</b>' : ''}
-                            </span>`;
+                            displayName = `❤️ Combo Casal:<br><span style="font-size:0.8rem; color:#aaa; font-weight:normal;">- 1º Lanche: ${item.details.burger1}<br>- 2º Lanche: ${secondBurgerText}<br>- ${item.details.potatoes} Batata(s)<br>- ${item.details.sodas} Refri(s)<br>${item.details.discountApplied ? '<b style="color:#2ec4b6;">(Desconto R$ 20 aplicado!)</b>' : ''}</span>`;
                         } else if (item.isLancheCustom) {
                             const addTxt = item.addonsDetails.map(a => `+ ${a.name}`).join('<br>');
-                            displayName = `🍔 ${item.lancheBase}<br>
-                            <span style="font-size:0.8rem; color:#c5a85c; font-weight:normal; line-height:1.2; display:block; margin-top:2px;">
-                            ${addTxt}
-                            </span>`;
+                            displayName = `🍔 ${item.lancheBase}<br><span style="font-size:0.8rem; color:#c5a85c; font-weight:normal; line-height:1.2; display:block; margin-top:2px;">${addTxt}</span>`;
                         }
 
                         catHtml += `
@@ -1450,7 +1670,6 @@
                             </div>
                         `;
                     });
-                    
                     catHtml += `</div>`;
                     container.innerHTML += catHtml;
                 }
@@ -1476,7 +1695,6 @@
             }
 
             let totalGeral = subtotal + deliveryFee;
-
             document.getElementById('cartFloat').style.display = 'flex';
             document.getElementById('cartCount').innerText = count + (count === 1 ? ' item' : ' itens');
             document.getElementById('cartTotalFloat').innerText = totalGeral.toFixed(2).replace('.', ',');
@@ -1489,7 +1707,6 @@
         function selectPayment(method) {
             selectedPaymentMethod = method;
             document.querySelectorAll('.payment-btn').forEach(btn => btn.classList.remove('selected'));
-            
             if(method === 'Pix') document.getElementById('payPix').classList.add('selected');
             if(method === 'Cartão') document.getElementById('payCard').classList.add('selected');
             if(method === 'Dinheiro') document.getElementById('payCash').classList.add('selected');
@@ -1509,12 +1726,13 @@
             if(!show) { document.getElementById('changeValue').value = ''; }
         }
 
-        // Processamento de fechamento de pedido e redirecionamento p/ WhatsApp
         function sendWhatsApp() {
             const name = document.getElementById('clientName').value.trim();
+            const phoneClient = document.getElementById('clientPhone').value.trim();
             const address = document.getElementById('clientAddress').value.trim();
 
             if (!name) { alert('Por favor, informe seu nome.'); return; }
+            if (!phoneClient) { alert('Por favor, informe seu WhatsApp/Telefone.'); return; }
             if (!address) { alert('Por favor, informe seu endereço completo.'); return; }
             if (!selectedPaymentMethod) { alert('Por favor, selecione uma forma de pagamento.'); return; }
 
@@ -1531,46 +1749,53 @@
             }
 
             const orderNum = Math.floor(1000 + Math.random() * 9000);
+            let subtotal = 0;
+            let totalBurgersInCart = 0;
+
+            cart.forEach(item => {
+                subtotal += (item.price * item.qty);
+                if (item.category === 'Hambúrgueres') totalBurgersInCart += item.qty;
+            });
+            let totalFinal = subtotal + deliveryFee;
+
+            const orderPayload = {
+                orderId: orderNum,
+                clientName: name,
+                clientPhone: phoneClient,
+                address: address,
+                payment: selectedPaymentMethod + changeText,
+                items: cart,
+                subtotal: subtotal,
+                delivery: deliveryFee,
+                total: totalFinal,
+                timestamp: new Date().toISOString()
+            };
+
+            db.ref('orders').push(orderPayload);
 
             let message = `🧾 *CUPOM DE PEDIDO #${orderNum}* 🧾\n`;
             message += `-------------------------------------------\n`;
             message += `🍔 *PR BURGUER NA BRASA*\n`;
             message += `-------------------------------------------\n\n`;
             message += `👤 *CLIENTE:* ${name}\n`;
+            message += `📱 *CONTATO:* ${phoneClient}\n`;
             message += `📍 *ENDEREÇO:* ${address}\n\n`;
             message += `💳 *PAGAMENTO:* ${selectedPaymentMethod}${changeText}\n`;
             message += `-------------------------------------------\n`;
             message += `📝 *ITENS DO PEDIDO*:\n\n`;
 
             const categories = ['Hambúrgueres', 'Combos', 'Adicionais', 'Refri'];
-            let subtotal = 0;
-            let totalBurgersInCart = 0;
-
             categories.forEach(cat => {
                 const itemsInCat = cart.filter(item => item.category === cat);
                 if (itemsInCat.length > 0) {
                     message += `*--- ${cat.toUpperCase()} ---*\n`;
                     itemsInCat.forEach(item => {
-                        subtotal += (item.price * item.qty);
-                        
-                        if (item.category === 'Hambúrgueres') {
-                            totalBurgersInCart += item.qty;
-                        }
-
                         if(item.isComboCasal) {
                             const secondBurgerText = item.details.burger2 === "Nenhum" ? "Dispensado" : item.details.burger2;
-                            message += `▪️ ${item.qty}x Combo Casal ❤️\n`;
-                            message += `   • Hambúrguer 1: ${item.details.burger1}\n`;
-                            message += `   • Hambúrguer 2: ${secondBurgerText}\n`;
-                            message += `   • Qtd. Batata: ${item.details.potatoes}\n`;
-                            message += `   • Qtd. Refrigerante: ${item.details.sodas}\n`;
-                            if(item.details.discountApplied) { message += `   💡 (Desconto de R$ 20,00 aplicado)\n`; }
-                            message += `   (R$ ${item.price.toFixed(2).replace('.', ',')} total)\n`;
+                            message += `▪️ ${item.qty}x Combo Casal ❤️\n   • Lanche 1: ${item.details.burger1}\n   • Lanche 2: ${secondBurgerText}\n   (R$ ${item.price.toFixed(2).replace('.', ',')} total)\n`;
                         } else if (item.isLancheCustom) {
                             message += `▪️ ${item.qty}x ${item.lancheBase}\n`;
-                            item.addonsDetails.forEach(ad => {
-                                message += `   • Adicional: ${ad.name} (+R$ ${ad.price.toFixed(2).replace('.', ',')})\n`;
-                            });
+                            item.addonsDetails.forEach(ad => { message += `   • + ${ad.name}\n`; });
                             message += `   (R$ ${item.price.toFixed(2).replace('.', ',')} un.)\n`;
                         } else {
                             message += `▪️ ${item.qty}x ${item.name}\n   (R$ ${item.price.toFixed(2).replace('.', ',')} un.)\n`;
@@ -1582,23 +1807,120 @@
 
             if (isFriday && totalBurgersInCart > 0) {
                 message += `*--- PROMOÇÃO DE SEXTA ---*\n`;
-                message += `🎁 ${totalBurgersInCart}x Batata Frita Individual Grátis\n`;
-                message += `   (Ganhou pela compra de ${totalBurgersInCart} hambúrguer(es) individuais!)\n\n`;
+                message += `🎁 ${totalBurgersInCart}x Batata Frita Individual Grátis\n\n`;
             }
-
-            let totalFinal = subtotal + deliveryFee;
 
             message += `-------------------------------------------\n`;
             message += `💰 *SUBTOTAL:* R$ ${subtotal.toFixed(2).replace('.', ',')}\n`;
             message += `🚚 *TAXA DE ENTREGA:* R$ ${deliveryFee.toFixed(2).replace('.', ',')}\n`;
             message += `⭐ *TOTAL GERAL:* R$ ${totalFinal.toFixed(2).replace('.', ',')}\n`;
             message += `-------------------------------------------\n`;
-            message += `⏱️ *Tempo de espera: 40 minutos (podendo ser entregue antes)*\n\n`;
-            message += `🕒 _Obrigado pela preferência!_`;
+            message += `⏱️ *Tempo de espera: 40 minutos*\n\n🕒 _Obrigado pela preferência!_`;
 
             const phone = "5519920124303";
-            const encodedMessage = encodeURIComponent(message);
-            window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodedMessage}`, '_blank');
+            window.open(`https://api.whatsapp.com/send?phone=${phone}&text=${encodeURIComponent(message)}`, '_blank');
+            cart = [];
+            toggleModal(false);
+            updateCart();
+        }
+
+        function openAdminPortal() {
+            const user = auth.currentUser;
+            if (user) {
+                document.getElementById('adminAuthView').style.display = 'none';
+                document.getElementById('adminDashboardView').style.display = 'block';
+                document.getElementById('adminModalTitle').innerText = 'Painel Gerencial - PR Burguer';
+            } else {
+                document.getElementById('adminAuthView').style.display = 'block';
+                document.getElementById('adminDashboardView').style.display = 'none';
+                document.getElementById('adminModalTitle').innerText = 'Área do Administrador';
+            }
+            document.getElementById('adminModal').style.display = 'flex';
+        }
+
+        function toggleAdminModal(show) {
+            document.getElementById('adminModal').style.display = show ? 'flex' : 'none';
+        }
+
+        function adminRegister() {
+            const email = document.getElementById('adminEmail').value.trim();
+            const password = document.getElementById('adminPassword').value.trim();
+            if(!email || !password) { alert('Preencha e-mail e senha.'); return; }
+
+            auth.createUserWithEmailAndPassword(email, password)
+                .then(() => {
+                    alert('Conta de administrador criada com sucesso!');
+                    openAdminPortal();
+                })
+                .catch(error => { alert('Erro ao cadastrar: ' + error.message); });
+        }
+
+        function adminLogin() {
+            const email = document.getElementById('adminEmail').value.trim();
+            const password = document.getElementById('adminPassword').value.trim();
+            if(!email || !password) { alert('Preencha e-mail e senha.'); return; }
+
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    openAdminPortal();
+                })
+                .catch(error => { alert('Erro ao entrar: ' + error.message); });
+        }
+
+        function adminLogout() {
+            auth.signOut().then(() => {
+                openAdminPortal();
+            });
+        }
+
+        function renderAdminClients(clients) {
+            const container = document.getElementById('adminClientsList');
+            if(!clients || clients.length === 0) {
+                container.innerHTML = `<p style="color: #777; font-size: 0.85rem; text-align: center; padding: 10px;">Nenhum cliente registrado ainda.</p>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            clients.forEach(c => {
+                const cleanPhone = c.phone.replace(/\D/g, '');
+                const msgTop = encodeURIComponent(`Olá ${c.name}! Tudo bem? Passando para lembrar daquela fome de hambúrguer na brasa aqui no PR Burguer na Brasa hoje! Temos combos especiais esperando por você. 🍔🔥`);
+                container.innerHTML += `
+                    <div class="client-row">
+                        <div>
+                            <strong style="color: #fff; font-size: 0.9rem; display: block;">${c.name}</strong>
+                            <span style="color: #888; font-size: 0.75rem;">Tel: ${c.phone}</span>
+                        </div>
+                        <a href="https://api.whatsapp.com/send?phone=55${cleanPhone}&text=${msgTop}" target="_blank" class="whatsapp-btn-admin">
+                            💬 Chamar no Zap
+                        </a>
+                    </div>
+                `;
+            });
+        }
+
+        function clearHistory(type) {
+            if(type === 'day') {
+                if(confirm('Deseja limpar os registros do dia?')) {
+                    db.ref('orders').once('value', snapshot => {
+                        const data = snapshot.val();
+                        const todayStr = new Date().toISOString().split('T')[0];
+                        if(data) {
+                            Object.keys(data).forEach(key => {
+                                if(data[key].timestamp && data[key].timestamp.split('T')[0] === todayStr) {
+                                    db.ref(`orders/${key}`).remove();
+                                }
+                            });
+                        }
+                        alert('Histórico diário limpo com sucesso!');
+                    });
+                }
+            } else if(type === 'all') {
+                if(confirm('ATENÇÃO: Deseja apagar todo o histórico de pedidos e faturamento do sistema?')) {
+                    db.ref('orders').remove().then(() => {
+                        alert('Histórico completo apagado com sucesso!');
+                    });
+                }
+            }
         }
     </script>
 </body>
